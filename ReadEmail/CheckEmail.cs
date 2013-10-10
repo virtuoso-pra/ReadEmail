@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
+﻿using Microsoft.Exchange.WebServices.Data;
+using System;
 using System.IO;
-using System.Configuration;
+using System.Linq;
 using System.ServiceProcess;
-using Microsoft.Exchange.WebServices.Data;
-using Microsoft.Exchange.WebServices.Autodiscover;
-using Microsoft.Office.Interop.Excel;
-using System.Text;
 
 namespace ReadEmail
 {
     public partial class CheckEmail : ServiceBase
     {
+        Database.DataActions dataActionsObject = new Database.DataActions();
         System.Timers.Timer timer;
         public CheckEmail()
         {
@@ -54,62 +47,68 @@ namespace ReadEmail
 
         public void CheckMail()
         {
-            StreamWriter st = new StreamWriter("C:\\Test\\_testings.txt");
-            string emailId = "encoredev@virtuoso.com";// ConfigurationManager.AppSettings["UserName"].ToString();
-            if (emailId != string.Empty)
+            try
             {
-                st.WriteLine(DateTime.Now + " " + emailId);
-                st.Close();
-                ExchangeService service = new ExchangeService();
-                service.Credentials = new WebCredentials(emailId, "Sea2013");
-                service.UseDefaultCredentials = false;
-                service.Url = new Uri("https://outlook.office365.com/EWS/Exchange.asmx");
-                Folder inbox = Folder.Bind(service, WellKnownFolderName.Inbox);
-                SearchFilter sf = new SearchFilter.SearchFilterCollection(LogicalOperator.And, new SearchFilter.IsEqualTo(EmailMessageSchema.IsRead, false));
-                if (inbox.UnreadCount > 0)
+                string processLoc = dataActionsObject.getProcessingFolderLocation();
+                StreamWriter st = new StreamWriter("C:\\Test\\_testings.txt");
+                string emailId = "encoredev@virtuoso.com";// ConfigurationManager.AppSettings["UserName"].ToString();
+                if (emailId != string.Empty)
                 {
-                    ItemView view = new ItemView(inbox.UnreadCount);
-                    FindItemsResults<Item> findResults = inbox.FindItems(sf, view);
-                    PropertySet itempropertyset = new PropertySet(BasePropertySet.FirstClassProperties, EmailMessageSchema.From, EmailMessageSchema.ToRecipients);
-                    itempropertyset.RequestedBodyType = BodyType.Text;
-                    //itemview.PropertySet = itempropertyset;
-                    //inbox.UnreadCount
-                    ServiceResponseCollection<GetItemResponse> items = service.BindToItems(findResults.Select(item => item.Id), itempropertyset);
-                    MailItem[] msit = getMailItem(items, service);
-
-                    foreach (MailItem item in msit)
+                    st.WriteLine(DateTime.Now + " " + emailId);
+                    st.Close();
+                    ExchangeService service = new ExchangeService();
+                    service.Credentials = new WebCredentials(emailId, "Sea2013");
+                    service.UseDefaultCredentials = false;
+                    service.Url = new Uri("https://outlook.office365.com/EWS/Exchange.asmx");
+                    Folder inbox = Folder.Bind(service, WellKnownFolderName.Inbox);
+                    SearchFilter sf = new SearchFilter.SearchFilterCollection(LogicalOperator.And, new SearchFilter.IsEqualTo(EmailMessageSchema.IsRead, false));
+                    if (inbox.UnreadCount > 0)
                     {
-                        item.message.IsRead = true;
-                        item.message.Update(ConflictResolutionMode.AlwaysOverwrite);
-                        foreach (Attachment attachment in item.attachment)
+                        ItemView view = new ItemView(inbox.UnreadCount);
+                        FindItemsResults<Item> findResults = inbox.FindItems(sf, view);
+                        PropertySet itempropertyset = new PropertySet(BasePropertySet.FirstClassProperties, EmailMessageSchema.From, EmailMessageSchema.ToRecipients);
+                        itempropertyset.RequestedBodyType = BodyType.Text;
+                        //inbox.UnreadCount
+                        ServiceResponseCollection<GetItemResponse> items = service.BindToItems(findResults.Select(item => item.Id), itempropertyset);
+                        MailItem[] msit = getMailItem(items, service);
+
+                        foreach (MailItem item in msit)
                         {
-                            if (attachment is FileAttachment)
+                            item.message.IsRead = true;
+                            item.message.Update(ConflictResolutionMode.AlwaysOverwrite);
+                            foreach (Attachment attachment in item.attachment)
                             {
-
-                                FileAttachment fileAttachment = attachment as FileAttachment;
-
-                                //fileAttachment.Load(@"C:\\Test\\" + fileAttachment.Name);'
-                                FileStream theStream = new FileStream("C:\\Test\\" + fileAttachment.Name, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                                fileAttachment.Load(theStream);
-                                byte[] fileContents;
-                                MemoryStream memStream = new MemoryStream();
-                                theStream.CopyTo(memStream);
-                                fileContents = memStream.GetBuffer();
-                                theStream.Close();
-                                theStream.Dispose();
-                                Console.WriteLine("Attachment name: " + fileAttachment.Name + fileAttachment.Content + fileAttachment.ContentType + fileAttachment.Size);
+                                if (attachment is FileAttachment)
+                                {
+                                    string extName = attachment.Name.Substring(attachment.Name.LastIndexOf('.'));
+                                    FileAttachment fileAttachment = attachment as FileAttachment;
+                                    FileStream theStream = new FileStream(processLoc + fileAttachment.Name, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                                    fileAttachment.Load(theStream);
+                                    byte[] fileContents;
+                                    MemoryStream memStream = new MemoryStream();
+                                    theStream.CopyTo(memStream);
+                                    fileContents = memStream.GetBuffer();
+                                    theStream.Close();
+                                    theStream.Dispose();
+                                    Console.WriteLine("Attachment name: " + fileAttachment.Name + fileAttachment.Content + fileAttachment.ContentType + fileAttachment.Size);
+                                }
                             }
                         }
-                    }                   
+                    }
+                    DeleteMail(emailId);
                 }
-                DeleteMail();
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 
-        public void DeleteMail()
+
+        public void DeleteMail(string emailId )
         {
             ExchangeService service = new ExchangeService();
-            string emailId = "encoredev@virtuoso.com"; //  string filesPath5 = ConfigurationManager.AppSettings["UserName"].ToString();
+            //string emailId = "encoredev@virtuoso.com"; //  string filesPath5 = ConfigurationManager.AppSettings["UserName"].ToString();
             if (emailId != string.Empty)
             {
                 service.Credentials = new WebCredentials(emailId, "Sea2013");
@@ -121,7 +120,7 @@ namespace ReadEmail
                 SearchFilter greaterthanfilter = new SearchFilter.IsGreaterThanOrEqualTo(ItemSchema.DateTimeReceived, searchdate);
                 SearchFilter lessthanfilter = new SearchFilter.IsLessThan(ItemSchema.DateTimeReceived, searchdate);
                 SearchFilter filter = new SearchFilter.SearchFilterCollection(LogicalOperator.Or, lessthanfilter);
-                Folder folder = Folder.Bind(service, WellKnownFolderName.Inbox);              
+                Folder folder = Folder.Bind(service, WellKnownFolderName.Inbox);
                 //Or the folder you want to search in
                 FindItemsResults<Item> results = folder.FindItems(filter, new ItemView(folder.TotalCount));
                 foreach (Item i in results.Items)

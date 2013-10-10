@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="PRAModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityContainer Name="PRAModelStoreContainer">
+          <EntitySet Name="DataLoaderConfig" EntityType="PRAModel.Store.DataLoaderConfig" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="EmailData" EntityType="PRAModel.Store.EmailData" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="EmailWatcherConfig" EntityType="PRAModel.Store.EmailWatcherConfig" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="ErrorLog" EntityType="PRAModel.Store.ErrorLog" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Sample" EntityType="PRAModel.Store.Sample" store:Type="Tables" store:Schema="dbo" store:Name="Sample">
+            <DefiningQuery>SELECT 
+      [Sample].[Name] AS [Name], 
+      [Sample].[Class] AS [Class], 
+      [Sample].[Sec] AS [Sec]
+      FROM [dbo].[Sample] AS [Sample]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="SupplierEmailConfig" EntityType="PRAModel.Store.SupplierEmailConfig" store:Type="Tables" Schema="dbo" />
+        </EntityContainer>
+        <EntityType Name="DataLoaderConfig">
+          <Key>
+            <PropertyRef Name="location" />
+          </Key>
+          <Property Name="location" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="archiveLocation" Type="varchar" MaxLength="50" />
+          <Property Name="refreshRateInSeconds" Type="int" />
+          <Property Name="batchSizeInRows" Type="int" />
+        </EntityType>
+        <EntityType Name="EmailData">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="fromEmailId" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="subject" Type="varchar" MaxLength="50" />
+          <Property Name="body" Type="varchar" MaxLength="150" />
+          <Property Name="orginalFileName" Type="varchar" MaxLength="50" />
+          <Property Name="newFileName" Type="varchar" MaxLength="50" />
+          <Property Name="timeRead" Type="timestamp" StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="EmailWatcherConfig">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="targetEmailId" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="password" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="serverName" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="refreshRateInSeconds" Type="int" Nullable="false" />
+          <Property Name="targetFolder" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="retainPeriodInDays" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ErrorLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="type" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="detail" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <!--Errors Found During Generation:
+      warning 6002: The table/view 'PRA.dbo.Sample' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      -->
+        <EntityType Name="Sample">
+          <Key>
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="Class" />
+            <PropertyRef Name="Sec" />
+          </Key>
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="Class" Type="varchar" Nullable="false" MaxLength="5" />
+          <Property Name="Sec" Type="varchar" Nullable="false" MaxLength="1" />
+        </EntityType>
+        <EntityType Name="SupplierEmailConfig">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="supplierMatchId" Type="int" Nullable="false" />
+          <Property Name="emailId" Type="varchar" Nullable="false" MaxLength="50" />
+        </EntityType>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="PRAModel" Alias="Self" p1:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:p1="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="PRAEntities" p1:LazyLoadingEnabled="true">
+          <EntitySet Name="EmailWatcherConfigs" EntityType="PRAModel.EmailWatcherConfig" />
+          <EntitySet Name="SupplierEmailConfigs" EntityType="PRAModel.SupplierEmailConfig" />
+          <EntitySet Name="EmailDatas" EntityType="PRAModel.EmailData" />
+          <EntitySet Name="ErrorLogs" EntityType="PRAModel.ErrorLog" />
+          <EntitySet Name="Samples" EntityType="PRAModel.Sample" />
+          <EntitySet Name="DataLoaderConfigs" EntityType="PRAModel.DataLoaderConfig" />
+        </EntityContainer>
+        <EntityType Name="EmailWatcherConfig">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="targetEmailId" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+          <Property Name="password" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+          <Property Name="serverName" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+          <Property Name="refreshRateInSeconds" Type="Int32" Nullable="false" />
+          <Property Name="targetFolder" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+          <Property Name="retainPeriodInDays" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SupplierEmailConfig">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="supplierMatchId" Type="Int32" Nullable="false" />
+          <Property Name="emailId" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="EmailData">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="fromEmailId" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="subject" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="body" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="orginalFileName" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="newFileName" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="Binary" Name="timeRead" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="ErrorLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="type" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="detail" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Sample">
+          <Key>
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="Class" />
+            <PropertyRef Name="Sec" />
+          </Key>
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Class" Nullable="false" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Sec" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="DataLoaderConfig">
+          <Key>
+            <PropertyRef Name="location" />
+          </Key>
+          <Property Type="String" Name="location" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="refreshRateInSeconds" />
+          <Property Type="Int32" Name="batchSizeInRows" />
+          <Property Type="String" Name="archiveLocation" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="PRAModelStoreContainer" CdmEntityContainer="PRAEntities">
+          <EntitySetMapping Name="EmailWatcherConfigs">
+            <EntityTypeMapping TypeName="PRAModel.EmailWatcherConfig">
+              <MappingFragment StoreEntitySet="EmailWatcherConfig">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="targetEmailId" ColumnName="targetEmailId" />
+                <ScalarProperty Name="password" ColumnName="password" />
+                <ScalarProperty Name="serverName" ColumnName="serverName" />
+                <ScalarProperty Name="refreshRateInSeconds" ColumnName="refreshRateInSeconds" />
+                <ScalarProperty Name="targetFolder" ColumnName="targetFolder" />
+                <ScalarProperty Name="retainPeriodInDays" ColumnName="retainPeriodInDays" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SupplierEmailConfigs">
+            <EntityTypeMapping TypeName="PRAModel.SupplierEmailConfig">
+              <MappingFragment StoreEntitySet="SupplierEmailConfig">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="supplierMatchId" ColumnName="supplierMatchId" />
+                <ScalarProperty Name="emailId" ColumnName="emailId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EmailDatas">
+            <EntityTypeMapping TypeName="PRAModel.EmailData">
+              <MappingFragment StoreEntitySet="EmailData">
+                <ScalarProperty Name="timeRead" ColumnName="timeRead" />
+                <ScalarProperty Name="newFileName" ColumnName="newFileName" />
+                <ScalarProperty Name="orginalFileName" ColumnName="orginalFileName" />
+                <ScalarProperty Name="body" ColumnName="body" />
+                <ScalarProperty Name="subject" ColumnName="subject" />
+                <ScalarProperty Name="fromEmailId" ColumnName="fromEmailId" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ErrorLogs">
+            <EntityTypeMapping TypeName="PRAModel.ErrorLog">
+              <MappingFragment StoreEntitySet="ErrorLog">
+                <ScalarProperty Name="detail" ColumnName="detail" />
+                <ScalarProperty Name="type" ColumnName="type" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Samples">
+            <EntityTypeMapping TypeName="PRAModel.Sample">
+              <MappingFragment StoreEntitySet="Sample">
+                <ScalarProperty Name="Sec" ColumnName="Sec" />
+                <ScalarProperty Name="Class" ColumnName="Class" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DataLoaderConfigs">
+            <EntityTypeMapping TypeName="PRAModel.DataLoaderConfig">
+              <MappingFragment StoreEntitySet="DataLoaderConfig">
+                <ScalarProperty Name="archiveLocation" ColumnName="archiveLocation" />
+                <ScalarProperty Name="batchSizeInRows" ColumnName="batchSizeInRows" />
+                <ScalarProperty Name="refreshRateInSeconds" ColumnName="refreshRateInSeconds" />
+                <ScalarProperty Name="location" ColumnName="location" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
